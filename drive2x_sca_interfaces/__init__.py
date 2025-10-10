@@ -13,6 +13,9 @@ from pydantic import BaseModel, Field, AfterValidator
 import datetime
 
 
+def is_utc_time(x : datetime.datetime):
+    return (x.tzinfo is not None) and (x.tzinfo.tzname() == "UTC")
+
 
 class ConnectedEVId(BaseModel):
     """
@@ -35,9 +38,8 @@ class SetpointRequestResponse(BaseModel):
                                should be applied to Charge Controller setpoints.
     """
     site_tag : str
-    expected_slot_start_time : Annotated[datetime.datetime, AfterValidator(lambda x: x.tzinfo.tzname() == "UTC")]
+    expected_slot_start_time : Annotated[datetime.datetime, AfterValidator(is_utc_time)]
     values : dict[ConnectedEVId, int] = Field(default_factory=dict)
-
 
 class SCADatum(BaseModel):
     """
@@ -50,7 +52,7 @@ class SCADatum(BaseModel):
     """
     soc : Annotated[float, AfterValidator(lambda x: 0.0 <= x <= 100.0)]
     usable_battery_capacity_kwh : Annotated[float, AfterValidator(lambda x: x > 0.0)]
-    tdep : Annotated[datetime.datetime, AfterValidator(lambda x: x.tzinfo.tzname() == "UTC")]
+    tdep : Annotated[datetime.datetime, AfterValidator(is_utc_time)]
 
 class SCADataEVs(BaseModel):
     """
@@ -65,5 +67,5 @@ class SCADataEVs(BaseModel):
             and the current trend for that value.
     """
     values : dict[ConnectedEVId, SCADatum] = Field(default_factory=dict)
-    soc_estimate_valid_at : Annotated[datetime.datetime, AfterValidator(lambda x: x.tzinfo.tzname() == "UTC")]
+    soc_estimate_valid_at : Annotated[datetime.datetime, AfterValidator(is_utc_time)]
 
