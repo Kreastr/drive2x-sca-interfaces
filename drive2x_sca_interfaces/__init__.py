@@ -9,7 +9,7 @@ Union nor the granting authority can be held responsible for them.
 """
 from typing import Annotated
 
-from pydantic import BaseModel, Field, AfterValidator
+from pydantic import BaseModel, Field, AfterValidator, field_validator
 import datetime
 
 
@@ -38,8 +38,12 @@ class SetpointRequestResponse(BaseModel):
                                should be applied to Charge Controller setpoints.
     """
     site_tag : str
-    expected_slot_start_time : Annotated[datetime.datetime, AfterValidator(is_utc_time)]
+    expected_slot_start_time : datetime.datetime
     values : dict[ConnectedEVId, int] = Field(default_factory=dict)
+    
+    @field_validator("expected_slot_start_time")
+    def expected_slot_start_time_is_utc(cls, x):
+        return is_utc_time(x)
 
 class SCADatum(BaseModel):
     """
@@ -50,9 +54,21 @@ class SCADatum(BaseModel):
     tdep : datetime.datetime The forecasted or declared departure time of the connected EV in UTC.
 
     """
-    soc : Annotated[float, AfterValidator(lambda x: 0.0 <= x <= 100.0)]
-    usable_battery_capacity_kwh : Annotated[float, AfterValidator(lambda x: x > 0.0)]
-    tdep : Annotated[datetime.datetime, AfterValidator(is_utc_time)]
+    soc : float
+    usable_battery_capacity_kwh : float
+    tdep : datetime.datetime
+
+    @field_validator("usable_battery_capacity_kwh")
+    def usable_battery_capacity_kwh_is_positive(self, x):
+        return x > 0.0
+    
+    @field_validator("soc")
+    def soc_in_range(self, x):
+        return 0.0 <= x <= 100.0
+
+    @field_validator("tdep")
+    def tdep_is_utc(cls, x):
+        return is_utc_time(x)
 
 class SCADataEVs(BaseModel):
     """
@@ -67,5 +83,9 @@ class SCADataEVs(BaseModel):
             and the current trend for that value.
     """
     values : dict[ConnectedEVId, SCADatum] = Field(default_factory=dict)
-    soc_estimate_valid_at : Annotated[datetime.datetime, AfterValidator(is_utc_time)]
+    soc_estimate_valid_at : Annotated[datetime.datetime, AfterValidator(lambda x: x.tzinfo.tzname() == "UTC")]
 
+
+    @field_validator("soc_estimate_valid_at")
+    def soc_estimate_valid_at_is_utc(cls, x):
+        return is_utc_time(x)
