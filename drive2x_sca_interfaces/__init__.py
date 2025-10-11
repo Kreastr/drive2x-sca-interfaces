@@ -9,7 +9,7 @@ Union nor the granting authority can be held responsible for them.
 """
 from typing import Annotated
 
-from pydantic import BaseModel, Field, AfterValidator, field_validator
+from pydantic import BaseModel, Field, field_validator
 import datetime
 
 
@@ -83,7 +83,7 @@ class SCADataEVs(BaseModel):
             and the current trend for that value.
     """
     values : dict[ConnectedEVId, SCADatum] = Field(default_factory=dict)
-    soc_estimate_valid_at : Annotated[datetime.datetime, AfterValidator(lambda x: x.tzinfo.tzname() == "UTC")]
+    soc_estimate_valid_at :datetime.datetime
 
 
     @field_validator("soc_estimate_valid_at")
