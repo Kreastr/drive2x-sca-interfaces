@@ -7,14 +7,13 @@ Funded by the European Union and UKRI. Views and opinions expressed are however 
 only and do not necessarily reflect those of the European Union, CINEA or UKRI. Neither the European
 Union nor the granting authority can be held responsible for them.
 """
-from typing import Annotated
 
 from pydantic import BaseModel, Field, field_validator
 import datetime
 
 
 def is_utc_time(x : datetime.datetime):
-    return (x.tzinfo is not None) and (x.tzinfo.tzname() == "UTC")
+    return (x.tzinfo is not None) and (x.tzinfo.tzname(None) == "UTC")
 
 
 class ConnectedEVId(BaseModel):
@@ -40,10 +39,12 @@ class SetpointRequestResponse(BaseModel):
     site_tag : str
     expected_slot_start_time : datetime.datetime
     values : dict[ConnectedEVId, int] = Field(default_factory=dict)
-    
-    @field_validator("expected_slot_start_time")
-    def expected_slot_start_time_is_utc(cls, x):
-        return is_utc_time(x)
+
+    @field_validator("expected_slot_start_time", mode='after')
+    def expected_slot_start_time_is_utc(cls, x : datetime.datetime):
+        if not is_utc_time(x):
+            raise ValueError("expected_slot_start_time must be a timestamp in UTC")
+        return x
 
 class SCADatum(BaseModel):
     """
@@ -58,17 +59,23 @@ class SCADatum(BaseModel):
     usable_battery_capacity_kwh : float
     tdep : datetime.datetime
 
-    @field_validator("usable_battery_capacity_kwh")
-    def usable_battery_capacity_kwh_is_positive(self, x):
-        return x > 0.0
-    
-    @field_validator("soc")
-    def soc_in_range(self, x):
-        return 0.0 <= x <= 100.0
+    @field_validator("usable_battery_capacity_kwh", mode='after')
+    def usable_battery_capacity_kwh_is_positive(cls, x : float):
+        if not x > 0.0:
+            raise ValueError("usable_battery_capacity_kwh must be a positive number")
+        return x
 
-    @field_validator("tdep")
-    def tdep_is_utc(cls, x):
-        return is_utc_time(x)
+    @field_validator("soc", mode='after')
+    def soc_in_range(cls, x : float):
+        if not 0.0 <= x <= 100.0:
+            raise ValueError("soc must be a value in percents of total usable capacity in range 0..100 %")
+        return x
+
+    @field_validator("tdep", mode='after')
+    def tdep_is_utc(cls, x : datetime.datetime):
+        if not is_utc_time(x):
+            raise ValueError("tdep must be a timestamp in UTC")
+        return x
 
 class SCADataEVs(BaseModel):
     """
@@ -86,6 +93,8 @@ class SCADataEVs(BaseModel):
     soc_estimate_valid_at :datetime.datetime
 
 
-    @field_validator("soc_estimate_valid_at")
-    def soc_estimate_valid_at_is_utc(cls, x):
-        return is_utc_time(x)
+    @field_validator("soc_estimate_valid_at", mode='after')
+    def soc_estimate_valid_at_is_utc(cls, x : datetime.datetime):
+        if not is_utc_time(x):
+            raise ValueError("soc_estimate_valid_at must be a timestamp in UTC")
+        return x
