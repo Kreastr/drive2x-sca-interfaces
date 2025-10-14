@@ -14,7 +14,7 @@ authors = [
 description = """Definitions and validators for DriVe2X SCA integration."
 """
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 license = "LGPL-2.1-or-later"
 license-files = [ "LICENSE" ]
 keywords = ["D2X", "DriVe2X", "SCA", "Smart", "Charging", "Algorithm"]
