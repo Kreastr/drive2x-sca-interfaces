@@ -26,6 +26,9 @@ class ConnectedEVId(BaseModel):
     evse_id : int
     connector_id : int = 1
 
+    def __hash__(self) -> int:
+        return f"{self.charge_point_id}:{self.evse_id}:{self.connector_id}".__hash__()
+
 class SetpointRequestResponse(BaseModel):
     """
     When used as request means the command that should be implemented by the chargers.
