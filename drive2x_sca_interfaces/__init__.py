@@ -19,8 +19,10 @@ Build EV status info example
 
 Processed JSON input for EV status info
 >>> parsed = SCADataEVs.model_validate(json.loads(sca_data))
->>> parsed
-SCADataEVs(values={ConnectedEVId(charge_point_id='some_id', evse_id=1, connector_id=1): SCADatum(soc=10.0, usable_battery_capacity_kwh=50.0, tdep=datetime.datetime(2025, 10, 1, 0, 0, tzinfo=TzInfo(UTC))), ConnectedEVId(charge_point_id='another_id', evse_id=3, connector_id=1): SCADatum(soc=30.0, usable_battery_capacity_kwh=20.0, tdep=datetime.datetime(2025, 10, 3, 5, 10, tzinfo=TzInfo(UTC)))}, soc_estimate_valid_at=datetime.datetime(2025, 9, 30, 20, 0, tzinfo=TzInfo(UTC)))
+>>> parsed  # doctest: +ELLIPSIS
+SCADataEVs(values={ConnectedEVId(charge_point_id='some_id', evse_id=1, connector_id=1): SCADatum(soc=10.0, usable_battery_capacity_kwh=50.0, tdep=datetime.datetime(2025, 10, 1, 0, 0, tzinfo=TzInfo(...))), ConnectedEVId(charge_point_id='another_id', evse_id=3, connector_id=1): SCADatum(soc=30.0, usable_battery_capacity_kwh=20.0, tdep=datetime.datetime(2025, 10, 3, 5, 10, tzinfo=TzInfo(...)))}, soc_estimate_valid_at=datetime.datetime(2025, 9, 30, 20, 0, tzinfo=TzInfo(...)))
+>>> parsed.model_dump_json()
+'{"values":{"some_id:1:1":{"soc":10.0,"usable_battery_capacity_kwh":50.0,"tdep":"2025-10-01T00:00:00Z"},"another_id:3:1":{"soc":30.0,"usable_battery_capacity_kwh":20.0,"tdep":"2025-10-03T05:10:00Z"}},"soc_estimate_valid_at":"2025-09-30T20:00:00Z"}'
 
 Build setpoint request
 >>> request = SetpointRequestResponse(site_tag="some site",\
@@ -29,9 +31,10 @@ Build setpoint request
 >>> request
 '{"site_tag":"some site","expected_slot_start_time":"2025-09-30T20:00:00Z","values":{"some_id:1:1":100,"another_id:3:1":-1000}}'
 >>> parsed_request = SetpointRequestResponse.model_validate(json.loads(request))
->>> parsed_request
-SetpointRequestResponse(site_tag='some site', expected_slot_start_time=datetime.datetime(2025, 9, 30, 20, 0, tzinfo=TzInfo(UTC)), values={ConnectedEVId(charge_point_id='some_id', evse_id=1, connector_id=1): 100, ConnectedEVId(charge_point_id='another_id', evse_id=3, connector_id=1): -1000})
-
+>>> parsed_request  # doctest: +ELLIPSIS
+SetpointRequestResponse(site_tag='some site', expected_slot_start_time=datetime.datetime(2025, 9, 30, 20, 0, tzinfo=TzInfo(...)), values={ConnectedEVId(charge_point_id='some_id', evse_id=1, connector_id=1): 100, ConnectedEVId(charge_point_id='another_id', evse_id=3, connector_id=1): -1000})
+>>> parsed_request.model_dump_json()
+'{"site_tag":"some site","expected_slot_start_time":"2025-09-30T20:00:00Z","values":{"some_id:1:1":100,"another_id:3:1":-1000}}'
 """
 import json
 
