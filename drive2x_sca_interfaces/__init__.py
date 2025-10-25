@@ -35,6 +35,13 @@ Build setpoint request
 SetpointRequestResponse(site_tag='some site', expected_slot_start_time=datetime.datetime(2025, 9, 30, 20, 0, tzinfo=TzInfo(...)), values={ConnectedEVId(charge_point_id='some_id', evse_id=1, connector_id=1): 100, ConnectedEVId(charge_point_id='another_id', evse_id=3, connector_id=1): -1000})
 >>> parsed_request.model_dump_json()
 '{"site_tag":"some site","expected_slot_start_time":"2025-09-30T20:00:00Z","values":{"some_id:1:1":100,"another_id:3:1":-1000}}'
+
+Some real cases
+>>> test_data={'values': {'D2X_DEMO_2B1E2679E0BD41EC:1:1': {'soc': 76.5460317460224, 'usable_battery_capacity_kwh': 70.0, 'tdep': '2025-10-25T20:45:00Z'}, 'D2X_DEMO_2B1E2679E0BD41EC:2:1': {'soc': 71.41666666666666, 'usable_battery_capacity_kwh': 70.0, 'tdep': '2025-10-25T20:45:00Z'}, 'D2X_DEMO_2B1E2679E0BD41EC:3:1': {'soc': 77.1285714285631, 'usable_battery_capacity_kwh': 70.0, 'tdep': '2025-10-25T20:45:00Z'}}, 'soc_estimate_valid_at': '2025-10-25T23:39:17.498693Z'}
+>>> parsed = SCADataEVs.model_validate(test_data)
+>>> parsed  # doctest: +ELLIPSIS
+SCADataEVs(values={ConnectedEVId(charge_point_id='D2X_DEMO_2B1E2679E0BD41EC', evse_id=1, connector_id=1): SCADatum(soc=76.5460317460224, usable_battery_capacity_kwh=70.0, tdep=datetime.datetime(2025, 10, 25, 20, 45, tzinfo=TzInfo(UTC))), ConnectedEVId(charge_point_id='D2X_DEMO_2B1E2679E0BD41EC', evse_id=2, connector_id=1): SCADatum(soc=71.41666666666666, usable_battery_capacity_kwh=70.0, tdep=datetime.datetime(2025, 10, 25, 20, 45, tzinfo=TzInfo(UTC))), ConnectedEVId(charge_point_id='D2X_DEMO_2B1E2679E0BD41EC', evse_id=3, connector_id=1): SCADatum(soc=77.1285714285631, usable_battery_capacity_kwh=70.0, tdep=datetime.datetime(2025, 10, 25, 20, 45, tzinfo=TzInfo(UTC)))}, soc_estimate_valid_at=datetime.datetime(2025, 10, 25, 23, 39, 17, 498693, tzinfo=TzInfo(UTC)))
+
 """
 import json
 
