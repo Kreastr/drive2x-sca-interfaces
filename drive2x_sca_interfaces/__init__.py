@@ -52,6 +52,8 @@ import datetime
 def is_utc_time(x : datetime.datetime):
     return (x.tzinfo is not None) and (x.tzinfo.tzname(None) == "UTC")
 
+class GenericErrorResponse(BaseModel):
+    error_message : str
 
 class ConnectedEVId(BaseModel):
     """
