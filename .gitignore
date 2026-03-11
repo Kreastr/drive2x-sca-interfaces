@@ -3,3 +3,6 @@
 /.venv/
 /dist/
 /.idea/
+/mutants/
+*.meta
+__pycache__
