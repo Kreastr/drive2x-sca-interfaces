@@ -44,6 +44,7 @@ SCADataEVs(values={ConnectedEVId(charge_point_id='D2X_DEMO_2B1E2679E0BD41EC', ev
 
 """
 import json
+from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 import datetime
@@ -125,6 +126,10 @@ class SetpointRequestResponse(BaseModel):
             raise ValueError("expected_slot_start_time must be a timestamp in UTC")
         return x
 
+class AbsolutePowerRange(BaseModel):
+    minimal : float = 0
+    maximal : float
+
 class SCADatum(BaseModel):
     """
 
@@ -137,6 +142,8 @@ class SCADatum(BaseModel):
     soc : float
     usable_battery_capacity_kwh : float
     tdep : datetime.datetime
+    charge_power_w : Optional[AbsolutePowerRange] = None
+    discharge_power_w : Optional[AbsolutePowerRange] = None
 
     @field_validator("usable_battery_capacity_kwh", mode='after')
     def usable_battery_capacity_kwh_is_positive(cls, x : float):
